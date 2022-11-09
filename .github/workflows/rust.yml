@@ -1,0 +1,26 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: test
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Notify deploy
+      run: SERVER_PATH=${{ SERVER_PATH }} ./status.sh ${{ API_KEY }} deploy
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+    - name: Notify success
+      run: SERVER_PATH=${{ SERVER_PATH }} ./status.sh ${{ API_KEY }} success
