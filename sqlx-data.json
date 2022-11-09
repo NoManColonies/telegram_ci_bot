@@ -1,0 +1,127 @@
+{
+  "db": "SQLite",
+  "1e8a31d425698d3b7cd3d3d9772ee8b99f39d9602f39e4d362870f77dd547192": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "\n                UPDATE main.repos\n                SET name = ?\n                WHERE id = ?\n                "
+  },
+  "28b65b8e18bebaf73429943ecb694723af871b862800748307a9542b1f485086": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n                DELETE FROM main.repos\n                WHERE id = ?\n                "
+  },
+  "54ff0fc971ab263a352f845c6a5423ca7c0517ff00dd73de26e2b4b07bab8039": {
+    "describe": {
+      "columns": [
+        {
+          "name": "status",
+          "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n                SELECT status \n                FROM main.repos\n                WHERE id = ?\n                "
+  },
+  "5dd0f60e4fb5b244d69639a0ed2a21075d78593948db0e2d8671a28cb5f87a56": {
+    "describe": {
+      "columns": [
+        {
+          "name": "message_id",
+          "ordinal": 0,
+          "type_info": "Int64"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "status",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n            SELECT message_id, name, status\n            FROM main.repos\n            WHERE id = ?\n            "
+  },
+  "6915a87a3b031e945536a7bed91a24f92f1c0bba7f49eb87a44cfd4185f0eb28": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Text"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "status",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "message_id",
+          "ordinal": 3,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "\n                SELECT * from main.repos\n                WHERE id = ?\n                "
+  },
+  "a47441ed76dd7dc03e817f2749c838a7bb765f51f322481737a6fbcb2dd7c292": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 4
+      }
+    },
+    "query": "\n            INSERT INTO main.repos \n            (id, name, status, message_id) VALUES\n            (?, ?, ?, ?)\n            "
+  },
+  "e288418790d6d1e65b39e7eb8f9b492c0a859fcf7f6b0b0bfe4bdaf68d275726": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 2
+      }
+    },
+    "query": "\n            UPDATE main.repos\n            SET status = ?\n            WHERE id = ?\n            "
+  }
+}
