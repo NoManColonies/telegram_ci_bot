@@ -1,13 +1,13 @@
 #!/bin/bash
 if [[ $3 ]]
 then
-  description="&description=$3"
+  description="&$3"
 else
   description=""
 fi
 if [[ $4 ]]
 then
-  url="&url=$4"
+  url="&$4"
 else
   url=""
 fi
