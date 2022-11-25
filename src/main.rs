@@ -3,11 +3,11 @@ use crate::app::{
     middleware::auth::layer::SessionLayer,
     service::{
         bot::{
-            handler::{config_repo, invalid_command, receive_status, start},
-            state::{BotState, RepoCommand},
+            handler::{config_mode_handler, invalid_command, normal_mode_handler, start},
+            state::{BotState, GeneralCommand, RepoCommand},
         },
+        job::{create_job_handler, update_job_handler},
         root::{root_failure_handler, root_handler},
-        status::update_status,
     },
 };
 use axum::{
@@ -133,27 +133,26 @@ async fn main() {
             let sqlite_pool = sqlite_pool.clone();
             let bot = bot.clone();
             async move {
-                // teloxide::repl(bot, |bot: Bot, msg: Message| async move {
-                //     info!("receiving a message with id: {:?}", msg.chat.id.0);
-                //     bot.send_dice(msg.chat.id).await?;
-                //     // info!("{}", ChatId(-854492643));
-                //     Ok(())
-                // })
-                // .await
                 Dispatcher::builder(
                     bot,
                     Update::filter_message()
                         .enter_dialogue::<Message, ErasedStorage<BotState>, BotState>()
                         .branch(dptree::case![BotState::Start].endpoint(start))
-                        .branch(dptree::case![BotState::ConfigMode].endpoint(config_repo))
                         .branch(
-                            dptree::case![BotState::ReceiverMode(name, key)]
+                            dptree::case![BotState::ConfigMode(list, key)]
                                 .branch(
                                     dptree::entry()
                                         .filter_command::<RepoCommand>()
-                                        .endpoint(receive_status),
+                                        .endpoint(config_mode_handler),
                                 )
                                 .branch(dptree::endpoint(invalid_command)),
+                        )
+                        .branch(
+                            dptree::case![BotState::NormalMode(list)].branch(
+                                dptree::entry()
+                                    .filter_command::<GeneralCommand>()
+                                    .endpoint(normal_mode_handler),
+                            ),
                         ),
                 )
                 .dependencies(dptree::deps![storage, sqlite_pool])
@@ -198,7 +197,8 @@ async fn main() {
         Router::new()
             .route("/", get(root_handler))
             .route("/", post(root_failure_handler))
-            .route("/status", put(update_status))
+            .route("/job", post(create_job_handler))
+            .route("/job", put(update_job_handler))
             .layer(
                 ServiceBuilder::new()
                     .layer(

@@ -13,6 +13,8 @@ pub struct StatusQuery {
     status: DeployStatus,
     url: Option<String>,
     description: Option<String>,
+    by: Option<String>,
+    by_name: Option<String>,
 }
 
 const DEPLOYING_TEXT: &'static str = "is deploying... ⚙️";
@@ -25,39 +27,45 @@ fn format_telegram_message(
     last_status: DeployStatus,
     url: Option<String>,
     description: Option<String>,
+    by: Option<String>,
+    by_name: Option<String>,
 ) -> String {
-    match (status, last_status, description, url) {
-        (DeployStatus::Idle, last_status, _, _) if last_status != DeployStatus::Deploy => {
+    match (status, last_status, description, url, by, by_name) {
+        (DeployStatus::Idle, last_status, _, _, _, _) if last_status != DeployStatus::Deploy => {
             format!("repo: {repo_name} is doing nothing 💤")
         }
-        (DeployStatus::Idle, _, Some(description), _) => description,
-        (DeployStatus::Idle, _, _, _) => {
+        (DeployStatus::Idle, _, Some(description), _, _, _) => description,
+        (DeployStatus::Idle, _, _, _, _, _) => {
             format!("repo: {repo_name} deployment was cancelled ⛔️")
         }
-        (DeployStatus::Deploy, _, Some(description), Some(url)) => {
-            format!("{description}\n\nlink: {url}")
+        (DeployStatus::Deploy, _, Some(description), Some(url), Some(by), Some(by_name)) => {
+            format!("{description}\ntriggered by: <a href=\"{by}\">{by_name}</a> \nlink: <a href=\"{url}\">{repo_name}</a>")
         }
-        (DeployStatus::Deploy, _, Some(description), _) => description,
-        (DeployStatus::Deploy, _, _, Some(url)) => {
-            format!("repo: {repo_name} is deploying... ⚙️\n\nlink: {url}")
+        (DeployStatus::Deploy, _, Some(description), _, _, _) => description,
+        (DeployStatus::Deploy, _, _, Some(url), Some(by), Some(by_name)) => {
+            format!("repo: {repo_name} is deploying... ⚙️\ntriggered by: <a href=\"{by}\">{by_name}</a>\nlink: <a href=\"{url}\">{repo_name}</a>")
         }
-        (DeployStatus::Deploy, _, _, _) => format!("repo: {repo_name} {DEPLOYING_TEXT}"),
-        (DeployStatus::Success, _, Some(description), Some(url)) => {
-            format!("{description}\n\nlink: {url}")
+        (DeployStatus::Deploy, _, _, _, _, _) => format!("repo: {repo_name} {DEPLOYING_TEXT}"),
+        (DeployStatus::Success, _, Some(description), Some(url), Some(by), Some(by_name)) => {
+            format!("{description}\ntriggered by: <a href=\"{by}\">{by_name}</a>\nlink: <a href=\"{url}\">{repo_name}</a>")
         }
-        (DeployStatus::Success, _, Some(description), _) => description,
-        (DeployStatus::Success, _, _, Some(url)) => {
-            format!("repo: {repo_name} {DEPLOY_SUCCESS_TEXT}\n\nlink: {url}")
+        (DeployStatus::Success, _, Some(description), _, _, _) => description,
+        (DeployStatus::Success, _, _, Some(url), Some(by), Some(by_name)) => {
+            format!("repo: {repo_name} {DEPLOY_SUCCESS_TEXT}\ntriggered by: <a href=\"{by}\">{by_name}</a>\nlink: <a href=\"{url}\">{repo_name}</a>")
         }
-        (DeployStatus::Success, _, _, _) => format!("repo: {repo_name} {DEPLOY_SUCCESS_TEXT}"),
-        (DeployStatus::Failure, _, Some(description), Some(url)) => {
-            format!("{description}\n\nlink: {url}")
+        (DeployStatus::Success, _, _, _, _, _) => {
+            format!("repo: {repo_name} {DEPLOY_SUCCESS_TEXT}")
         }
-        (DeployStatus::Failure, _, Some(description), _) => description,
-        (DeployStatus::Failure, _, _, Some(url)) => {
-            format!("repo: {repo_name} {DEPLOY_FAILURE_TEXT}\n\nlink: {url}")
+        (DeployStatus::Failure, _, Some(description), Some(url), Some(by), Some(by_name)) => {
+            format!("{description}\ntriggered by: <a href=\"{by}\">{by_name}</a>\nlink: {url}")
         }
-        (DeployStatus::Failure, _, _, _) => format!("repo: {repo_name} {DEPLOY_FAILURE_TEXT}"),
+        (DeployStatus::Failure, _, Some(description), _, _, _) => description,
+        (DeployStatus::Failure, _, _, Some(url), Some(by), Some(by_name)) => {
+            format!("repo: {repo_name} {DEPLOY_FAILURE_TEXT}\ntriggered by: <a href=\"{by}\">{by_name}</a>\nlink: <a href=\"{url}\">{repo_name}</a>")
+        }
+        (DeployStatus::Failure, _, _, _, _, _) => {
+            format!("repo: {repo_name} {DEPLOY_FAILURE_TEXT}")
+        }
     }
 }
 
@@ -69,6 +77,8 @@ pub async fn update_status(
         status,
         url,
         description,
+        by,
+        by_name,
     }): Query<StatusQuery>,
 ) -> impl IntoResponse {
     if let Some(session) = session {
@@ -106,6 +116,8 @@ pub async fn update_status(
                 DeployStatus::try_from(record.status.as_str())?,
                 url,
                 description,
+                by,
+                by_name,
             ),
         )
         .await?;

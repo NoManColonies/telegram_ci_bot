@@ -17,10 +17,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Notify deploy
-      run: SERVER_PATH=${{ secrets.SERVER_PATH }} ./status.sh ${{ secrets.API_KEY }} deploy "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      run: SERVER_PATH=${{ secrets.SERVER_PATH }} ./status.sh ${{ secrets.API_KEY }} deploy "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" "by=https://github.com/${{ github.triggering_actor }}" "by_name=${{ github.triggering_actor }}"
     - name: Build
-      run: cargo build --verbose
+      run: cargo build
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test
     - name: Notify success
-      run: SERVER_PATH=${{ secrets.SERVER_PATH }} ./status.sh ${{ secrets.API_KEY }} success "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      run: SERVER_PATH=${{ secrets.SERVER_PATH }} ./status.sh ${{ secrets.API_KEY }} success "url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" "by=https://github.com/${{ github.triggering_actor }}" "by_name=${{ github.triggering_actor }}"

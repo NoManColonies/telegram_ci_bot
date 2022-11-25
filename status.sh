@@ -11,4 +11,16 @@ then
 else
   url=""
 fi
-curl -H "Authorization: $1" -X PUT "$SERVER_PATH/status?status=$2$description$url"
+if [[ $5 ]]
+then
+  by="&$5"
+else
+  by=""
+fi
+if [[ $6 ]]
+then
+  by_name="&$6"
+else
+  by_name=""
+fi
+curl -H "Authorization: $1" -X PUT "$SERVER_PATH/status?status=$2$description$url$by$by_name"

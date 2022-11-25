@@ -71,6 +71,8 @@ pub enum ServiceError {
     SemaphoreAquire(#[from] tokio::sync::AcquireError),
     #[error("client response timeout")]
     ClientTimeout,
+    #[error("chrono datetime modification failure")]
+    ChronoDatetime,
     // #[error(transparent)]
     // CookieParse(#[from] cookie::ParseError),
     // #[error(transparent)]
@@ -324,6 +326,13 @@ impl ServiceError {
             // Self::QueueBasicConsumeTimeout => Code::DeadlineExceeded,
             // Self::QueueBasicAckTimeout => Code::DeadlineExceeded,
             Self::ClientTimeout => StatusCode::REQUEST_TIMEOUT,
+            Self::ChronoDatetime => {
+                warn!("chrono datetime modification failure");
+                capture_warning(
+                    "Service encountered failure while make a modification to chrono datetime",
+                );
+                StatusCode::INTERNAL_SERVER_ERROR
+            }
             // Self::CookieParse(e) => {
             //     warn!("cookie parse error: {:?}", e);
             //     capture_warning(

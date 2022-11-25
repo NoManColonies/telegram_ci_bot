@@ -276,6 +276,7 @@ dependencies = [
  "js-sys",
  "num-integer",
  "num-traits",
+ "serde",
  "time 0.1.44",
  "wasm-bindgen",
  "winapi",
@@ -2304,6 +2305,7 @@ name = "telegram_ci_bot"
 version = "1.0.0"
 dependencies = [
  "axum",
+ "chrono",
  "dotenv",
  "fakeit",
  "futures",
